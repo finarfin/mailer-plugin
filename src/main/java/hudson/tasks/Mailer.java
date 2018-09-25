@@ -597,8 +597,8 @@ public class Mailer extends Notifier implements SimpleBuildStep {
          */
         @RequirePOST
         public FormValidation doSendTestMail(
-                @QueryParameter String smtpServer, @QueryParameter String adminAddress, @QueryParameter boolean useSMTPAuth,
-                @QueryParameter String smtpAuthUserName, @QueryParameter Secret smtpAuthPasswordSecret,
+                @QueryParameter String smtpHost, @QueryParameter String adminAddress, @QueryParameter boolean authentication,
+                @QueryParameter String username, @QueryParameter Secret password,
                 @QueryParameter boolean useSsl, @QueryParameter String smtpPort, @QueryParameter String charset,
                 @QueryParameter String sendTestMailTo) throws IOException, ServletException, InterruptedException {
             try {
@@ -610,12 +610,12 @@ public class Mailer extends Notifier implements SimpleBuildStep {
 
                 jenkins.checkPermission(Jenkins.ADMINISTER);
                 
-                if (!useSMTPAuth) {
-                    smtpAuthUserName = null;
-                    smtpAuthPasswordSecret = null;
+                if (!authentication) {
+                    username = null;
+                    password = null;
                 }
                 
-                MimeMessage msg = new MimeMessage(createSession(smtpServer, smtpPort, useSsl, smtpAuthUserName, smtpAuthPasswordSecret));
+                MimeMessage msg = new MimeMessage(createSession(smtpHost, smtpPort, useSsl, username, password));
                 msg.setSubject(Messages.Mailer_TestMail_Subject(testEmailCount.incrementAndGet()), charset);
                 msg.setText(Messages.Mailer_TestMail_Content(testEmailCount.get(), jenkins.getDisplayName()), charset);
                 msg.setFrom(stringToAddress(adminAddress, charset));
